@@ -7,12 +7,12 @@ phases:
     commands:
       - echo Installing Serverless...
       - npm install -g serverless@latest
-      - serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
-      
+            
   pre_build:
     commands:
       - echo Install source NPM dependencies...
       - npm install
+      - serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
   build:
     commands:
       - echo Deployment started on `date`
