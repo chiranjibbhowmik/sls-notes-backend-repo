@@ -1,4 +1,4 @@
-version: 0.2
+git statusversion: 0.2
 
 phases:
   install:
@@ -13,7 +13,7 @@ phases:
     commands:
       - echo Deployment started on `date`
       - echo Deploying with the Serverless Framework
-      - sls deploy -v -s $ENV_NAME
+      - serverless deploy -v -s $ENV_NAME
   post_build:
     commands:
       - echo Deployment completed on `date`
