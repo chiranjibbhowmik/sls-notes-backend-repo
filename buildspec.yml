@@ -6,7 +6,7 @@ phases:
             nodejs: 18.x
     commands:
       - echo Installing Serverless...
-      - npm install -g serverless
+      - npm install -g serverless@latest
   pre_build:
     commands:
       - echo Install source NPM dependencies...
