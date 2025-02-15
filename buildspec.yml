@@ -6,6 +6,7 @@ phases:
             nodejs: 18.x
     commands:
       - echo Installing Serverless...
+      - serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
       - npm install -g serverless@latest
   pre_build:
     commands:
@@ -16,6 +17,7 @@ phases:
       - echo Deployment started on `date`
       - echo Deploying with the Serverless Framework
       - echo serverless deploy -v -s $ENV_NAME --debug
+      - serverless login --verbose
       - serverless deploy -s prod --debug
   post_build:
     commands:
