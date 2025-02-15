@@ -19,7 +19,7 @@ phases:
       - echo Deployment started on `date`
       - echo Deploying with the Serverless Framework
       - echo serverless deploy -v -s $ENV_NAME --debug
-      - serverless login --verbose
+      - serverless login --verbose --debug
       - serverless deploy -v -s prod --debug
   post_build:
     commands:
