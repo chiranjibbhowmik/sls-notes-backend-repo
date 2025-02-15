@@ -16,16 +16,8 @@ phases:
       - rm -rf ~/.serverless
       - npm cache clean --force
       - npm install
-      - export SERVERLESS_LICENSE_KEY=$SERVERLESS_LICENSE_KEY
+      - echo export SERVERLESS_LICENSE_KEY=$SERVERLESS_LICENSE_KEY
 
-      # ✅ Set AWS Credentials Explicitly
-      - echo "Configuring AWS credentials..."
-      - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
-      - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
-      - aws configure set region us-east-1
-      - aws sts get-caller-identity || echo "AWS authentication failed!"
-
-      # ✅ Disable Serverless Telemetry to avoid authentication issues
       - echo "Disabling Serverless telemetry..."
       - export SLS_TELEMETRY_DISABLED=1
 
@@ -39,11 +31,7 @@ phases:
       - echo "Deployment started on $(date)"
       - echo "Deploying with Serverless Framework..."
       
-      # ✅ Remove Unnecessary Serverless Login (causes auth issues)
-      #- serverless login --verbose --debug  # ❌ Removed this line
-
-      # ✅ Run Deployment with Debugging
-      - serverless deploy -v -s prod --debug || echo "Serverless deployment failed!"
+      - serverless deploy -v -s $ENV_NAME --debug || echo "Serverless deployment failed!"
 
   post_build:
     commands:
