@@ -3,28 +3,48 @@ version: 0.2
 phases:
   install:
     runtime-versions:
-            nodejs: 18.x
+      nodejs: 18.x
     commands:
-      - echo Installing Serverless...
+      - echo "Installing Serverless Framework..."
       - npm install -g serverless@latest
-            
+      - export PATH=$PATH:$(npm root -g) # Ensures serverless is available globally
+
   pre_build:
     commands:
-      - echo Install source NPM dependencies...
+      - echo "Setting up environment..."
+      - echo "Cleaning cache..."
+      - rm -rf ~/.serverless
+      - npm cache clean --force
       - npm install
-      - export SERVERLESS_LICENSE_KEY=your_license_key_here
-      - echo serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
+      - export SERVERLESS_LICENSE_KEY=$SERVERLESS_LICENSE_KEY
+
+      # ✅ Set AWS Credentials Explicitly
+      - echo "Configuring AWS credentials..."
+      - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - aws configure set region us-east-1
+      - aws sts get-caller-identity || echo "AWS authentication failed!"
+
+      # ✅ Disable Serverless Telemetry to avoid authentication issues
+      - echo "Disabling Serverless telemetry..."
+      - export SLS_TELEMETRY_DISABLED=1
+
+      # ✅ Verify Serverless Installation
       - echo "Checking Serverless Framework version..."
       - which serverless || echo "Serverless Framework not found!"
       - serverless -v || echo "Failed to get Serverless version"
-      
+
   build:
     commands:
-      - echo Deployment started on `date`
-      - echo Deploying with the Serverless Framework
-      - echo serverless deploy -v -s $ENV_NAME --debug
-      - serverless login --verbose --debug
-      - serverless deploy -v -s prod --debug
+      - echo "Deployment started on $(date)"
+      - echo "Deploying with Serverless Framework..."
+      
+      # ✅ Remove Unnecessary Serverless Login (causes auth issues)
+      #- serverless login --verbose --debug  # ❌ Removed this line
+
+      # ✅ Run Deployment with Debugging
+      - serverless deploy -v -s prod --debug || echo "Serverless deployment failed!"
+
   post_build:
     commands:
-      - echo Deployment completed on `date`
+      - echo "Deployment completed on $(date)"

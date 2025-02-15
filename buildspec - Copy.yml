@@ -1,0 +1,30 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+            nodejs: 18.x
+    commands:
+      - echo Installing Serverless...
+      - npm install -g serverless@latest
+            
+  pre_build:
+    commands:
+      - echo Install source NPM dependencies...
+      - npm install
+      - export SERVERLESS_LICENSE_KEY=your_license_key_here
+      - echo serverless config credentials --provider aws --key $AWS_ACCESS_KEY_ID --secret $AWS_SECRET_ACCESS_KEY
+      - echo "Checking Serverless Framework version..."
+      - which serverless || echo "Serverless Framework not found!"
+      - serverless -v || echo "Failed to get Serverless version"
+      
+  build:
+    commands:
+      - echo Deployment started on `date`
+      - echo Deploying with the Serverless Framework
+      - echo serverless deploy -v -s $ENV_NAME --debug
+      - serverless login --verbose --debug
+      - serverless deploy -v -s prod --debug
+  post_build:
+    commands:
+      - echo Deployment completed on `date`
