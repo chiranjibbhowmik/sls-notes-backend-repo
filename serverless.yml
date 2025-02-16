@@ -3,7 +3,7 @@ service: sls-notes-backend
 
 plugins:
   - serverless-offline
-  # - serverless-domain-manager
+  - serverless-domain-manager
 
 custom:
   allowedHeaders:
@@ -20,12 +20,12 @@ custom:
   serverless-offline:
     noPrependStageInUrl: true
     useChildProcesses: true
-  # customDomain:
-  #   domainName: api.notesapp.xyz
-  #   basePath: 'v1'
-  #   stage: ${self:provider.stage}
-  #   certificateName: notesapp.xyz
-  #   createRoute53Record: true
+  customDomain:
+    domainName: api.mytestapp.net
+    basePath: 'v1'
+    stage: ${self:provider.stage}
+    certificateName: mytestapp.net
+    createRoute53Record: true
 
 provider:
   name: aws
