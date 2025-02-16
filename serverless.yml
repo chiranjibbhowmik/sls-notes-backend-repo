@@ -16,9 +16,9 @@ custom:
     - X-Amz-Security-Token
     - X-Amz-User-Agent
     - app_user_id
-    - app_user_name
-    - Access-Control-Allow-Origin
-    - Access-Control-Allow-Credentials
+    - app_user_name 
+    # - Access-Control-Allow-Origin
+    # - Access-Control-Allow-Credentials
   serverless-offline:
     noPrependStageInUrl: true
     useChildProcesses: true
