@@ -7,7 +7,13 @@ AWS.config.update({ region: 'us-east-1' });
 
 const util = require('./util.js');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const dynamodb = new AWS.DynamoDB.DocumentClient({
+    // Add timeout settings
+    httpOptions: {
+        timeout: 5000 // 5 seconds
+    },
+    maxRetries: 3
+});
 const tableName = process.env.NOTES_TABLE;
 
 exports.handler = async (event) => {

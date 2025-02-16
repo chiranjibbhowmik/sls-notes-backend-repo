@@ -39,11 +39,18 @@ provider:
     NOTES_TABLE: ${self:service}-${opt:stage, self:provider.stage}
   iamRoleStatements:
     - Effect: Allow
-      Action: 
-        - dynamodb:Query
-        - dynamodb:PutItem
-        - dynamodb:DeleteItem
-      Resource: "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTES_TABLE}"
+      Action:
+      - dynamodb:PutItem       # For creating notes
+      - dynamodb:GetItem       # For retrieving single notes
+      - dynamodb:Query         # For querying notes
+      - dynamodb:Scan         # If you need to list all notes
+      - dynamodb:UpdateItem    # For updating notes
+      - dynamodb:DeleteItem    # For deleting notes
+      # If using GSI (which you are):
+      - dynamodb:Query         # For querying GSI
+      Resource: 
+      - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTES_TABLE}"
+      - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTES_TABLE}/index/*"
 
 functions:
   add-note:

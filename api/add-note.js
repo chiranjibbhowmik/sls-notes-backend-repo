@@ -6,31 +6,40 @@ const AWS = require('aws-sdk');
 AWS.config.update({ region: 'us-east-1' });
 
 const moment = require('moment');
-const uuidv4 = require('uuid/v4');
+// const uuidv4 = require('uuid/v4');
+const { v4: uuidv4 } = require('uuid');
 const util = require('./util.js');
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+const dynamodb = new AWS.DynamoDB.DocumentClient({
+    // Add timeout settings
+    httpOptions: {
+        timeout: 5000 // 5 seconds
+    },
+    maxRetries: 3
+});
 const tableName = process.env.NOTES_TABLE;
 
 exports.handler = async (event) => {
     try {
         let item = JSON.parse(event.body).Item;
-        console.log('Parsed request body');
+        // console.log('Parsed request body');
 
         item.user_id = util.getUserId(event.headers);
         item.user_name = util.getUserName(event.headers);
-        console.log('Added user details');
+        // console.log(item.user_id);
+        // console.log(item.user_name);
+        // console.log('Added user details');
 
         item.note_id = item.user_id + ':' + uuidv4()
         item.timestamp = moment().unix();
         item.expires = moment().add(90, 'days').unix();
-        console.log('Added note metadata');
+        // console.log('Added note metadata');
 
         let data = await dynamodb.put({
             TableName: tableName,
             Item: item
         }).promise();
-        console.log('DynamoDB operation completed');
+        // console.log('DynamoDB operation completed');
 
         return {
             statusCode: 200,
