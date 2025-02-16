@@ -15,16 +15,22 @@ const tableName = process.env.NOTES_TABLE;
 exports.handler = async (event) => {
     try {
         let item = JSON.parse(event.body).Item;
+        console.log('Parsed request body');
+
         item.user_id = util.getUserId(event.headers);
         item.user_name = util.getUserName(event.headers);
+        console.log('Added user details');
+
         item.note_id = item.user_id + ':' + uuidv4()
         item.timestamp = moment().unix();
         item.expires = moment().add(90, 'days').unix();
+        console.log('Added note metadata');
 
         let data = await dynamodb.put({
             TableName: tableName,
             Item: item
         }).promise();
+        console.log('DynamoDB operation completed');
 
         return {
             statusCode: 200,

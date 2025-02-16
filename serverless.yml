@@ -17,6 +17,9 @@ custom:
     - X-Amz-User-Agent
     - app_user_id
     - app_user_name
+  serverless-offline:
+    noPrependStageInUrl: true
+    useChildProcesses: true
   # customDomain:
   #   domainName: api.notesapp.xyz
   #   basePath: 'v1'
