@@ -17,6 +17,8 @@ custom:
     - X-Amz-User-Agent
     - app_user_id
     - app_user_name
+    - Access-Control-Allow-Origin
+    - Access-Control-Allow-Credentials
   serverless-offline:
     noPrependStageInUrl: true
     useChildProcesses: true
@@ -63,6 +65,7 @@ functions:
           cors:
             origin: '*'
             headers: ${self:custom.allowedHeaders}
+            allowCredentials: true
 
   update-note:
     handler: api/update-note.handler
