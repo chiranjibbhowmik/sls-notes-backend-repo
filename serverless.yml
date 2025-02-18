@@ -1,5 +1,11 @@
+# "org" ensures this Service is used with the correct Serverless Framework License Key.
+org: chiranjibbhowmik
 service: sls-notes-backend
 
+plugins:
+  - serverless-offline
+  - serverless-domain-manager
+  
 custom:
   allowedHeaders:
     - Accept
