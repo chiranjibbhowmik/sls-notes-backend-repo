@@ -19,7 +19,7 @@ phases:
       - echo export SERVERLESS_LICENSE_KEY=$SERVERLESS_LICENSE_KEY
 
       - echo "Disabling Serverless telemetry..."
-      - export SLS_TELEMETRY_DISABLED=1
+      - echo export SLS_TELEMETRY_DISABLED=1
 
       # ✅ Verify Serverless Installation
       - echo "Checking Serverless Framework version..."
