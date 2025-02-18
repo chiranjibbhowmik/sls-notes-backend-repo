@@ -1,9 +1,4 @@
-
 service: sls-notes-backend
-
-plugins:
-  - serverless-offline
-  - serverless-domain-manager
 
 custom:
   allowedHeaders:
@@ -16,19 +11,8 @@ custom:
     - X-Amz-Security-Token
     - X-Amz-User-Agent
     - app_user_id
-    - app_user_name 
-    # - Access-Control-Allow-Origin
-    # - Access-Control-Allow-Credentials
-  serverless-offline:
-    noPrependStageInUrl: true
-    useChildProcesses: true
-  customDomain:
-    domainName: api.mytestapp.net
-    basePath: 'v1'
-    stage: ${self:provider.stage}
-    certificateName: mytestapp.net
-    createRoute53Record: true
- 
+    - app_user_name
+
 provider:
   name: aws
   runtime: nodejs20.x
@@ -38,109 +22,61 @@ provider:
   timeout: 5
   endpointType: regional
   environment:
-    NOTES_TABLE: ${self:service}-${opt:stage, self:provider.stage}
+    DB_HOST: database-1.cjius0swscpx.us-east-1.rds.amazonaws.com
+    DB_PORT: 5432
+    DB_NAME: notes_db
+    DB_USER: ${ssm:/notes/db_user}
+    DB_PASSWORD: ${ssm:/notes/db_password}
   iamRoleStatements:
     - Effect: Allow
       Action:
-      - dynamodb:PutItem       # For creating notes
-      - dynamodb:GetItem       # For retrieving single notes
-      - dynamodb:Query         # For querying notes
-      - dynamodb:Scan         # If you need to list all notes
-      - dynamodb:UpdateItem    # For updating notes
-      - dynamodb:DeleteItem    # For deleting notes
-      # If using GSI (which you are):
-      - dynamodb:Query         # For querying GSI
-      Resource: 
-      - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTES_TABLE}"
-      - "arn:aws:dynamodb:${opt:region, self:provider.region}:*:table/${self:provider.environment.NOTES_TABLE}/index/*"
+        - rds-db:connect
+      Resource: arn:aws:rds-db:us-east-1:*:dbuser:*/*
 
 functions:
   add-note:
     handler: api/add-note.handler
-    description: POST /note
     events:
       - http:
           path: note
           method: post
           cors:
-            origin: '*'
             headers: ${self:custom.allowedHeaders}
-            allowCredentials: true
 
   update-note:
     handler: api/update-note.handler
-    description: PATCH /note
     events:
       - http:
           path: note
-          method: patch
+          method: put
           cors:
-            origin: '*'
             headers: ${self:custom.allowedHeaders}
 
   get-notes:
     handler: api/get-notes.handler
-    description: GET /notes
     events:
       - http:
           path: notes
           method: get
           cors:
-            origin: '*'
             headers: ${self:custom.allowedHeaders}
 
   get-note:
     handler: api/get-note.handler
-    description: GET /note/n/{note_id}
     events:
       - http:
           path: note/n/{note_id}
           method: get
           cors:
-            origin: '*'
             headers: ${self:custom.allowedHeaders}
 
   delete-note:
     handler: api/delete-note.handler
-    description: DELETE /note
     events:
       - http:
-          path: note/t/{timestamp}
+          path: note/n/{note_id}
           method: delete
           cors:
-            origin: '*'
             headers: ${self:custom.allowedHeaders}
 
-resources:
   Resources:
-    NotesTable:
-      Type: AWS::DynamoDB::Table
-      DeletionPolicy: Retain
-      Properties:
-        TableName: ${self:provider.environment.NOTES_TABLE}
-        AttributeDefinitions:
-          - AttributeName: user_id
-            AttributeType: S
-          - AttributeName: timestamp
-            AttributeType: N
-          - AttributeName: note_id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: user_id
-            KeyType: HASH
-          - AttributeName: timestamp
-            KeyType: RANGE
-        ProvisionedThroughput:
-          ReadCapacityUnits: 1
-          WriteCapacityUnits: 1
-        GlobalSecondaryIndexes:
-          - IndexName: note_id-index
-            KeySchema:
-              - AttributeName: note_id
-                KeyType: HASH
-            Projection:
-              ProjectionType: ALL
-            ProvisionedThroughput:
-              ReadCapacityUnits: 1
-              WriteCapacityUnits: 1
-            

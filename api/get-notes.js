@@ -2,13 +2,8 @@
  * Route: GET /notes
  */
 
-const AWS = require('aws-sdk');
-AWS.config.update({ region: 'us-east-1' });
-
 const util = require('./util.js');
-
-const dynamodb = new AWS.DynamoDB.DocumentClient();
-const tableName = process.env.NOTES_TABLE;
+const db = require('./db');
 
 exports.handler = async (event) => {
     try {
@@ -16,26 +11,17 @@ exports.handler = async (event) => {
         let limit = query && query.limit ? parseInt(query.limit) : 5;
         let user_id = util.getUserId(event.headers);
 
-        let params = {
-            TableName: tableName,
-            KeyConditionExpression: "user_id = :uid",
-            ExpressionAttributeValues: {
-                ":uid": user_id
-            },
-            Limit: limit,
-            ScanIndexForward: false
+        const offset = query && query.start ? parseInt(query.start) : 0;
+        const { rows } = await db.query(
+            'SELECT * FROM notes WHERE user_id = $1 ORDER BY created_at DESC LIMIT $2 OFFSET $3',
+            [user_id, limit, offset]
+        );
+
+        const data = {
+            Items: rows,
+            Count: rows.length,
+            ScannedCount: rows.length
         };
-
-        let startTimestamp = query && query.start ? parseInt(query.start) : 0;
-
-        if(startTimestamp > 0) {
-            params.ExclusiveStartKey = {
-                user_id: user_id,
-                timestamp: startTimestamp
-            }
-        }
-
-        let data = await dynamodb.query(params).promise();
 
         return {
             statusCode: 200,
@@ -53,4 +39,4 @@ exports.handler = async (event) => {
             })
         };
     }
-}
+};

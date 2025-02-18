@@ -1,0 +1,46 @@
+schemaVersion: 2.2.0
+metadata:
+  name: sls-notes-backend
+  version: 1.0.0
+  displayName: Serverless Notes Backend
+  description: Serverless application for managing notes using AWS Lambda
+  tags:
+    - Node.js
+    - AWS
+    - Serverless
+components:
+  - name: runtime
+    container:
+      image: node:18
+      memoryLimit: 2Gi
+      mountSources: true
+      endpoints:
+        - name: http-3000
+          targetPort: 3000
+commands:
+  - id: install-deps
+    exec:
+      component: runtime
+      commandLine: npm install
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: build
+        isDefault: true
+  - id: start-dev
+    exec:
+      component: runtime
+      commandLine: npx serverless offline start
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: run
+        isDefault: true
+  - id: deploy
+    exec:
+      component: runtime
+      commandLine: npx serverless deploy
+      workingDir: ${PROJECT_SOURCE}
+      group:
+        kind: deploy
+events:
+  postStart:
+    - install-deps

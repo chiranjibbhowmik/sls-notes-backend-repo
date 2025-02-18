@@ -28,10 +28,16 @@ phases:
 
   build:
     commands:
-      - echo "Deployment started on $(date)"
+      - echo "Build started on $(date)"
+      - echo "Running tests..."
+      - npm test || true
       - echo "Deploying with Serverless Framework..."
       
-      - serverless deploy -v -s $ENV_NAME --debug || echo "Serverless deployment failed!"
+      - |
+        if [ "${ENV_NAME}" = "" ]; then
+          export ENV_NAME="prod"
+        fi
+      - serverless deploy -v -s ${ENV_NAME} --debug
 
   post_build:
     commands:
