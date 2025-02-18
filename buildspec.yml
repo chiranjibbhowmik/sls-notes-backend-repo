@@ -18,6 +18,12 @@ phases:
       - npm install
       - echo export SERVERLESS_LICENSE_KEY=$SERVERLESS_LICENSE_KEY
 
+      - echo "Configuring AWS credentials..."
+      - aws configure set aws_access_key_id $AWS_ACCESS_KEY_ID
+      - aws configure set aws_secret_access_key $AWS_SECRET_ACCESS_KEY
+      - aws configure set region us-east-1
+      - aws sts get-caller-identity || echo "AWS authentication failed!"
+
       - echo "Disabling Serverless telemetry..."
       - export SLS_TELEMETRY_DISABLED=1
 
